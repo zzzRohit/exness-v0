@@ -1,0 +1,5 @@
+{
+  "name": "@exness/config",
+  "private": true,
+  "type": "module"
+}

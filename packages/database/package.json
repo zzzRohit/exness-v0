@@ -1,0 +1,17 @@
+{
+  "name": "@exness/database",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "dotenv": "^18.0.9",
+    "prisma": "^7.10.1"
+  }
+}
