@@ -16,3 +16,18 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model MarketQuote {
+  receivedAt       DateTime  @map("received_at") @db.Timestamptz(6)
+  exchangeEventTime DateTime? @map("exchange_event_time") @db.Timestamptz(6)
+  asset            String
+  bidPrice         BigInt    @map("bid_price")
+  askPrice         BigInt    @map("ask_price")
+  bidQuantity      BigInt    @map("bid_quantity")
+  askQuantity      BigInt    @map("ask_quantity")
+  updateId         BigInt    @map("update_id")
+
+  @@id([asset, receivedAt, updateId])
+  @@index([asset, receivedAt(sort: Desc)], map: "idx_market_quotes_asset_received")
+  @@map("market_quotes")
+}

@@ -55,6 +55,7 @@ export interface NormalizedBookTickerInput {
   askQuantity: string;
   updateId: number;
   receivedAt: number;
+  exchangeEventTime: number | null;
 }
 /// make a type of latestAskbidPrice
 
@@ -66,6 +67,7 @@ export interface LatestBookTicker {
   askQuantity: bigint;
   updateId: number;
   receivedAt: number;
+  exchangeEventTime: number | null;
 }
 
 // and think about Quantity how we should store them ???

@@ -1,5 +1,9 @@
 import { expect, test } from "bun:test";
-import { decimalToscaledBigInt } from "./decimal.js";
+import {
+  decimalToscaledBigInt,
+  PRICE_DECIMAL_PLACES,
+  QUANTITY_DECIMAL_PLACES,
+} from "./decimal.js";
 
 test("converts integer prices", () => {
   expect(decimalToscaledBigInt("12")).toBe(12000000n);
@@ -15,6 +19,21 @@ test("handles leading zeros and trailing zeros", () => {
   expect(decimalToscaledBigInt("00012.3400")).toBe(12340000n);
   expect(decimalToscaledBigInt("000.010")).toBe(10000n);
   expect(decimalToscaledBigInt("1.2300")).toBe(1230000n);
+  expect(decimalToscaledBigInt("77380.00000000", PRICE_DECIMAL_PLACES)).toBe(
+    77_380_000_000n,
+  );
+  expect(decimalToscaledBigInt("0.48204000", QUANTITY_DECIMAL_PLACES)).toBe(
+    48_204_000n,
+  );
+});
+
+test("accepts excess fractional digits only when they are trailing zeros", () => {
+  expect(decimalToscaledBigInt("1.2345670000", PRICE_DECIMAL_PLACES)).toBe(
+    1_234_567n,
+  );
+  expect(() =>
+    decimalToscaledBigInt("1.2345670001", PRICE_DECIMAL_PLACES, "BTC bidPrice"),
+  ).toThrow('Too many decimal places for BTC bidPrice: "1.2345670001"');
 });
 
 test("rejects invalid decimal strings", () => {

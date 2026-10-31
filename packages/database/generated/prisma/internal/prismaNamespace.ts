@@ -397,7 +397,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  User: 'User'
+  User: 'User',
+  MarketQuote: 'MarketQuote'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user"
+    modelProps: "user" | "marketQuote"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -491,6 +492,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MarketQuote: {
+      payload: Prisma.$MarketQuotePayload<ExtArgs>
+      fields: Prisma.MarketQuoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MarketQuoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MarketQuoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>
+        }
+        findFirst: {
+          args: Prisma.MarketQuoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MarketQuoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>
+        }
+        findMany: {
+          args: Prisma.MarketQuoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>[]
+        }
+        create: {
+          args: Prisma.MarketQuoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>
+        }
+        createMany: {
+          args: Prisma.MarketQuoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MarketQuoteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>[]
+        }
+        delete: {
+          args: Prisma.MarketQuoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>
+        }
+        update: {
+          args: Prisma.MarketQuoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>
+        }
+        deleteMany: {
+          args: Prisma.MarketQuoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MarketQuoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MarketQuoteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>[]
+        }
+        upsert: {
+          args: Prisma.MarketQuoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketQuotePayload>
+        }
+        aggregate: {
+          args: Prisma.MarketQuoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMarketQuote>
+        }
+        groupBy: {
+          args: Prisma.MarketQuoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketQuoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MarketQuoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketQuoteCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -542,6 +617,20 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const MarketQuoteScalarFieldEnum = {
+  receivedAt: 'receivedAt',
+  exchangeEventTime: 'exchangeEventTime',
+  asset: 'asset',
+  bidPrice: 'bidPrice',
+  askPrice: 'askPrice',
+  bidQuantity: 'bidQuantity',
+  askQuantity: 'askQuantity',
+  updateId: 'updateId'
+} as const
+
+export type MarketQuoteScalarFieldEnum = (typeof MarketQuoteScalarFieldEnum)[keyof typeof MarketQuoteScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -556,6 +645,14 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -785,6 +882,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  marketQuote?: Prisma.MarketQuoteOmit
 }
 
 /* Types for Logging */

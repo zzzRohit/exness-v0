@@ -51,7 +51,8 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  User: 'User'
+  User: 'User',
+  MarketQuote: 'MarketQuote'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -82,6 +83,20 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const MarketQuoteScalarFieldEnum = {
+  receivedAt: 'receivedAt',
+  exchangeEventTime: 'exchangeEventTime',
+  asset: 'asset',
+  bidPrice: 'bidPrice',
+  askPrice: 'askPrice',
+  bidQuantity: 'bidQuantity',
+  askQuantity: 'askQuantity',
+  updateId: 'updateId'
+} as const
+
+export type MarketQuoteScalarFieldEnum = (typeof MarketQuoteScalarFieldEnum)[keyof typeof MarketQuoteScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -96,4 +111,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

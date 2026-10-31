@@ -1,31 +1,86 @@
+import { prisma } from "@exness/database";
+import { insertMarketQuotes } from "./database/market.quote.writer.js";
 import { connectToBinance } from "./exchange/binance.js";
-import { updateLatestBookTicker } from "./services/price.service.js";
+import {
+  QuoteWriterService,
+  quoteWriterOptions,
+} from "./services/quote-writer.service.js";
+import {
+  updateLatestBookTicker,
+} from "./services/price.service.js";
 import { marketQuoteQueue } from "./queue/market.queue.js";
-import type { NormalizedTradeInput } from "./types/market.types.js";
+
+const quoteWriter = new QuoteWriterService(
+  insertMarketQuotes,
+  marketQuoteQueue,
+  quoteWriterOptions,
+);
+let acceptingQuotes = true;
+let shutdownPromise: Promise<void> | undefined;
+
+quoteWriter.start();
 
 const stop = connectToBinance(
-  (trade: NormalizedTradeInput) => {
-    // console.log("Normalized trade:", trade);
-  },
   (quote) => {
+    if (!acceptingQuotes) {
+      return;
+    }
+
     const latestQuote = updateLatestBookTicker(quote);
     if (latestQuote) {
+      quoteWriter.recordAcceptedQuote();
       const enqueued = marketQuoteQueue.enqueue(latestQuote);
 
       if (!enqueued) {
-        console.error("Market quote queue is full. Quote was not enqueued:", {
-          asset: latestQuote.asset,
-          updateId: latestQuote.updateId,
-        });
+        const overflowedCount = marketQuoteQueue.overflowedCount;
+        if (overflowedCount === 1 || overflowedCount % 100 === 0) {
+          console.error("Market quote queue is full; updates were not persisted.", {
+            overflowedQuotes: overflowedCount,
+            queueSize: marketQuoteQueue.size,
+            maxQueueSize: process.env.MARKET_QUOTE_QUEUE_MAX_SIZE ?? 10_000,
+          });
+        }
+      } else {
+        quoteWriter.notifyQueueChanged();
       }
     }
   },
 );
 
-function shutdown(): void {
-  console.log("Shutting down market-data worker...");
+function shutdown(): Promise<void> {
+  if (shutdownPromise) {
+    return shutdownPromise;
+  }
+
+  acceptingQuotes = false;
   stop();
+
+  shutdownPromise = (async () => {
+    console.log("Shutting down market-data worker...");
+    try {
+      const drained = await quoteWriter.stop();
+      if (!drained || !marketQuoteQueue.isEmpty()) {
+        console.error("Shutdown left quotes unpersisted.", {
+          pendingQuotes: marketQuoteQueue.size,
+        });
+        process.exitCode = 1;
+      }
+    } finally {
+      await prisma.$disconnect();
+    }
+  })();
+
+  return shutdownPromise;
 }
 
-process.once("SIGINT", shutdown);
-process.once("SIGTERM", shutdown);
+function handleShutdown(): void {
+  void shutdown().catch((error: unknown) => {
+    console.error("Market-data worker shutdown failed.", {
+      errorType: error instanceof Error ? error.name : "UnknownError",
+    });
+    process.exitCode = 1;
+  });
+}
+
+process.once("SIGINT", handleShutdown);
+process.once("SIGTERM", handleShutdown);

@@ -5,7 +5,11 @@ import type {
   NormalizedTradeInput,
   NormalizedBookTickerInput,
 } from "../types/market.types.js";
-import { decimalToScaledBigInt } from "../utils/decimal.js";
+import {
+  decimalToScaledBigInt,
+  PRICE_DECIMAL_PLACES,
+  QUANTITY_DECIMAL_PLACES,
+} from "../utils/decimal.js";
 const internalState_trade = new Map<Asset, LatestMarketPrice>();
 const internalState_BookTicker = new Map<Asset, LatestBookTicker>();
 
@@ -40,21 +44,37 @@ export const updateLatestBookTicker = (
 ): LatestBookTicker | null => {
   const existingQuote = internalState_BookTicker.get(quote.asset);
 
-  if (existingQuote && quote.updateId < existingQuote.updateId) {
+  if (existingQuote && quote.updateId <= existingQuote.updateId) {
     return null;
   }
 
   const isValidBookTicker = (bidPrice: bigint, askPrice: bigint): boolean => {
     return bidPrice <= askPrice;
   };
-  const bidPrice = decimalToScaledBigInt(quote.bidPrice);
-  const askPrice = decimalToScaledBigInt(quote.askPrice);
+  const bidPrice = decimalToScaledBigInt(
+    quote.bidPrice,
+    PRICE_DECIMAL_PLACES,
+    `${quote.asset} bidPrice`,
+  );
+  const askPrice = decimalToScaledBigInt(
+    quote.askPrice,
+    PRICE_DECIMAL_PLACES,
+    `${quote.asset} askPrice`,
+  );
   if (!isValidBookTicker(bidPrice, askPrice)) {
     return null;
   }
 
-  const askQuantity = decimalToScaledBigInt(quote.askQuantity , 8);
-  const bidQuantity = decimalToScaledBigInt(quote.bidQuantity,8);
+  const askQuantity = decimalToScaledBigInt(
+    quote.askQuantity,
+    QUANTITY_DECIMAL_PLACES,
+    `${quote.asset} askQuantity`,
+  );
+  const bidQuantity = decimalToScaledBigInt(
+    quote.bidQuantity,
+    QUANTITY_DECIMAL_PLACES,
+    `${quote.asset} bidQuantity`,
+  );
   const latestQuote: LatestBookTicker = {
     asset: quote.asset,
     bidPrice,
@@ -63,6 +83,7 @@ export const updateLatestBookTicker = (
     askQuantity,
     updateId: quote.updateId,
     receivedAt: quote.receivedAt,
+    exchangeEventTime: quote.exchangeEventTime,
   };
   internalState_BookTicker.set(quote.asset, latestQuote);
   return latestQuote;

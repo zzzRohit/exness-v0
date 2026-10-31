@@ -80,6 +80,7 @@ function normalizeBookTicker(
     askQuantity: payload.A,
     updateId: payload.u,
     receivedAt,
+    exchangeEventTime: null,
   };
 }
 
@@ -151,7 +152,7 @@ function normalizeTrade(
 
 function parseMessage(
   raw: string,
-  onTrade: TradeHandler,
+  onTrade: TradeHandler | undefined,
   onBookTicker: BookTickerHandler,
   receivedAt: number,
 ): void {
@@ -178,7 +179,7 @@ function parseMessage(
   if (isTradePayload(parsed.data)) {
     const trade = normalizeTrade(parsed.data);
 
-    if (trade) {
+    if (trade && onTrade) {
       onTrade(trade);
     }
 
@@ -200,14 +201,17 @@ function parseMessage(
   console.warn("Ignoring invalid or unsupported payload");
 }
 
+export function getBookTickerStreams(): string {
+  return ASSETS.map(({ streamSymbol }) => `${streamSymbol}@bookTicker`).join(
+    "/",
+  );
+}
+
 export function connectToBinance(
-  onTrade: TradeHandler,
   onBookticker: BookTickerHandler,
+  onTrade?: TradeHandler,
 ): () => void {
-  const streams = ASSETS.flatMap(({ streamSymbol }) => [
-    `${streamSymbol}@trade`,
-    `${streamSymbol}@bookTicker`,
-  ]).join("/");
+  const streams = getBookTickerStreams();
   const url = `${BASE_URL}?streams=${streams}`;
   let socket: WebSocket | undefined;
   let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
@@ -233,7 +237,6 @@ export function connectToBinance(
     currentSocket.addEventListener("message", (event) => {
       const receivedAt = Date.now();
       if (socket !== currentSocket || stopped) return;
-      console.log(event.data);
       parseMessage(String(event.data), onTrade, onBookticker, receivedAt);
     });
 
