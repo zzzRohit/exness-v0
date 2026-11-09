@@ -52,7 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  MarketQuote: 'MarketQuote'
+  MarketQuote: 'MarketQuote',
+  MarketCandle: 'MarketCandle',
+  CandleAggregationCheckpoint: 'CandleAggregationCheckpoint'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -73,6 +75,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   email: 'email',
   password: 'password',
   balance: 'balance',
@@ -84,6 +87,7 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 
 export const MarketQuoteScalarFieldEnum = {
+  ingestId: 'ingestId',
   receivedAt: 'receivedAt',
   exchangeEventTime: 'exchangeEventTime',
   asset: 'asset',
@@ -95,6 +99,39 @@ export const MarketQuoteScalarFieldEnum = {
 } as const
 
 export type MarketQuoteScalarFieldEnum = (typeof MarketQuoteScalarFieldEnum)[keyof typeof MarketQuoteScalarFieldEnum]
+
+
+export const MarketCandleScalarFieldEnum = {
+  asset: 'asset',
+  interval: 'interval',
+  startTime: 'startTime',
+  bidOpen: 'bidOpen',
+  bidHigh: 'bidHigh',
+  bidLow: 'bidLow',
+  bidClose: 'bidClose',
+  askOpen: 'askOpen',
+  askHigh: 'askHigh',
+  askLow: 'askLow',
+  askClose: 'askClose',
+  quoteCount: 'quoteCount',
+  firstReceivedAt: 'firstReceivedAt',
+  firstUpdateId: 'firstUpdateId',
+  lastReceivedAt: 'lastReceivedAt',
+  lastUpdateId: 'lastUpdateId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MarketCandleScalarFieldEnum = (typeof MarketCandleScalarFieldEnum)[keyof typeof MarketCandleScalarFieldEnum]
+
+
+export const CandleAggregationCheckpointScalarFieldEnum = {
+  consumerName: 'consumerName',
+  lastIngestId: 'lastIngestId',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CandleAggregationCheckpointScalarFieldEnum = (typeof CandleAggregationCheckpointScalarFieldEnum)[keyof typeof CandleAggregationCheckpointScalarFieldEnum]
 
 
 export const SortOrder = {

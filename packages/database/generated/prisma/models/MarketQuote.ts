@@ -27,6 +27,7 @@ export type AggregateMarketQuote = {
 }
 
 export type MarketQuoteAvgAggregateOutputType = {
+  ingestId: number | null
   bidPrice: number | null
   askPrice: number | null
   bidQuantity: number | null
@@ -35,6 +36,7 @@ export type MarketQuoteAvgAggregateOutputType = {
 }
 
 export type MarketQuoteSumAggregateOutputType = {
+  ingestId: bigint | null
   bidPrice: bigint | null
   askPrice: bigint | null
   bidQuantity: bigint | null
@@ -43,6 +45,7 @@ export type MarketQuoteSumAggregateOutputType = {
 }
 
 export type MarketQuoteMinAggregateOutputType = {
+  ingestId: bigint | null
   receivedAt: Date | null
   exchangeEventTime: Date | null
   asset: string | null
@@ -54,6 +57,7 @@ export type MarketQuoteMinAggregateOutputType = {
 }
 
 export type MarketQuoteMaxAggregateOutputType = {
+  ingestId: bigint | null
   receivedAt: Date | null
   exchangeEventTime: Date | null
   asset: string | null
@@ -65,6 +69,7 @@ export type MarketQuoteMaxAggregateOutputType = {
 }
 
 export type MarketQuoteCountAggregateOutputType = {
+  ingestId: number
   receivedAt: number
   exchangeEventTime: number
   asset: number
@@ -78,6 +83,7 @@ export type MarketQuoteCountAggregateOutputType = {
 
 
 export type MarketQuoteAvgAggregateInputType = {
+  ingestId?: true
   bidPrice?: true
   askPrice?: true
   bidQuantity?: true
@@ -86,6 +92,7 @@ export type MarketQuoteAvgAggregateInputType = {
 }
 
 export type MarketQuoteSumAggregateInputType = {
+  ingestId?: true
   bidPrice?: true
   askPrice?: true
   bidQuantity?: true
@@ -94,6 +101,7 @@ export type MarketQuoteSumAggregateInputType = {
 }
 
 export type MarketQuoteMinAggregateInputType = {
+  ingestId?: true
   receivedAt?: true
   exchangeEventTime?: true
   asset?: true
@@ -105,6 +113,7 @@ export type MarketQuoteMinAggregateInputType = {
 }
 
 export type MarketQuoteMaxAggregateInputType = {
+  ingestId?: true
   receivedAt?: true
   exchangeEventTime?: true
   asset?: true
@@ -116,6 +125,7 @@ export type MarketQuoteMaxAggregateInputType = {
 }
 
 export type MarketQuoteCountAggregateInputType = {
+  ingestId?: true
   receivedAt?: true
   exchangeEventTime?: true
   asset?: true
@@ -214,6 +224,7 @@ export type MarketQuoteGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 export type MarketQuoteGroupByOutputType = {
+  ingestId: bigint
   receivedAt: Date
   exchangeEventTime: Date | null
   asset: string
@@ -248,6 +259,7 @@ export type MarketQuoteWhereInput = {
   AND?: Prisma.MarketQuoteWhereInput | Prisma.MarketQuoteWhereInput[]
   OR?: Prisma.MarketQuoteWhereInput[]
   NOT?: Prisma.MarketQuoteWhereInput | Prisma.MarketQuoteWhereInput[]
+  ingestId?: Prisma.BigIntFilter<"MarketQuote"> | bigint | number
   receivedAt?: Prisma.DateTimeFilter<"MarketQuote"> | Date | string
   exchangeEventTime?: Prisma.DateTimeNullableFilter<"MarketQuote"> | Date | string | null
   asset?: Prisma.StringFilter<"MarketQuote"> | string
@@ -259,6 +271,7 @@ export type MarketQuoteWhereInput = {
 }
 
 export type MarketQuoteOrderByWithRelationInput = {
+  ingestId?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   exchangeEventTime?: Prisma.SortOrderInput | Prisma.SortOrder
   asset?: Prisma.SortOrder
@@ -274,6 +287,7 @@ export type MarketQuoteWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.MarketQuoteWhereInput | Prisma.MarketQuoteWhereInput[]
   OR?: Prisma.MarketQuoteWhereInput[]
   NOT?: Prisma.MarketQuoteWhereInput | Prisma.MarketQuoteWhereInput[]
+  ingestId?: Prisma.BigIntFilter<"MarketQuote"> | bigint | number
   receivedAt?: Prisma.DateTimeFilter<"MarketQuote"> | Date | string
   exchangeEventTime?: Prisma.DateTimeNullableFilter<"MarketQuote"> | Date | string | null
   asset?: Prisma.StringFilter<"MarketQuote"> | string
@@ -285,6 +299,7 @@ export type MarketQuoteWhereUniqueInput = Prisma.AtLeast<{
 }, "asset_receivedAt_updateId">
 
 export type MarketQuoteOrderByWithAggregationInput = {
+  ingestId?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   exchangeEventTime?: Prisma.SortOrderInput | Prisma.SortOrder
   asset?: Prisma.SortOrder
@@ -304,6 +319,7 @@ export type MarketQuoteScalarWhereWithAggregatesInput = {
   AND?: Prisma.MarketQuoteScalarWhereWithAggregatesInput | Prisma.MarketQuoteScalarWhereWithAggregatesInput[]
   OR?: Prisma.MarketQuoteScalarWhereWithAggregatesInput[]
   NOT?: Prisma.MarketQuoteScalarWhereWithAggregatesInput | Prisma.MarketQuoteScalarWhereWithAggregatesInput[]
+  ingestId?: Prisma.BigIntWithAggregatesFilter<"MarketQuote"> | bigint | number
   receivedAt?: Prisma.DateTimeWithAggregatesFilter<"MarketQuote"> | Date | string
   exchangeEventTime?: Prisma.DateTimeNullableWithAggregatesFilter<"MarketQuote"> | Date | string | null
   asset?: Prisma.StringWithAggregatesFilter<"MarketQuote"> | string
@@ -315,6 +331,7 @@ export type MarketQuoteScalarWhereWithAggregatesInput = {
 }
 
 export type MarketQuoteCreateInput = {
+  ingestId?: bigint | number
   receivedAt: Date | string
   exchangeEventTime?: Date | string | null
   asset: string
@@ -326,6 +343,7 @@ export type MarketQuoteCreateInput = {
 }
 
 export type MarketQuoteUncheckedCreateInput = {
+  ingestId?: bigint | number
   receivedAt: Date | string
   exchangeEventTime?: Date | string | null
   asset: string
@@ -337,6 +355,7 @@ export type MarketQuoteUncheckedCreateInput = {
 }
 
 export type MarketQuoteUpdateInput = {
+  ingestId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exchangeEventTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   asset?: Prisma.StringFieldUpdateOperationsInput | string
@@ -348,6 +367,7 @@ export type MarketQuoteUpdateInput = {
 }
 
 export type MarketQuoteUncheckedUpdateInput = {
+  ingestId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exchangeEventTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   asset?: Prisma.StringFieldUpdateOperationsInput | string
@@ -359,6 +379,7 @@ export type MarketQuoteUncheckedUpdateInput = {
 }
 
 export type MarketQuoteCreateManyInput = {
+  ingestId?: bigint | number
   receivedAt: Date | string
   exchangeEventTime?: Date | string | null
   asset: string
@@ -370,6 +391,7 @@ export type MarketQuoteCreateManyInput = {
 }
 
 export type MarketQuoteUpdateManyMutationInput = {
+  ingestId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exchangeEventTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   asset?: Prisma.StringFieldUpdateOperationsInput | string
@@ -381,6 +403,7 @@ export type MarketQuoteUpdateManyMutationInput = {
 }
 
 export type MarketQuoteUncheckedUpdateManyInput = {
+  ingestId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exchangeEventTime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   asset?: Prisma.StringFieldUpdateOperationsInput | string
@@ -398,6 +421,7 @@ export type MarketQuoteAssetReceivedAtUpdateIdCompoundUniqueInput = {
 }
 
 export type MarketQuoteCountOrderByAggregateInput = {
+  ingestId?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   exchangeEventTime?: Prisma.SortOrder
   asset?: Prisma.SortOrder
@@ -409,6 +433,7 @@ export type MarketQuoteCountOrderByAggregateInput = {
 }
 
 export type MarketQuoteAvgOrderByAggregateInput = {
+  ingestId?: Prisma.SortOrder
   bidPrice?: Prisma.SortOrder
   askPrice?: Prisma.SortOrder
   bidQuantity?: Prisma.SortOrder
@@ -417,6 +442,7 @@ export type MarketQuoteAvgOrderByAggregateInput = {
 }
 
 export type MarketQuoteMaxOrderByAggregateInput = {
+  ingestId?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   exchangeEventTime?: Prisma.SortOrder
   asset?: Prisma.SortOrder
@@ -428,6 +454,7 @@ export type MarketQuoteMaxOrderByAggregateInput = {
 }
 
 export type MarketQuoteMinOrderByAggregateInput = {
+  ingestId?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   exchangeEventTime?: Prisma.SortOrder
   asset?: Prisma.SortOrder
@@ -439,6 +466,7 @@ export type MarketQuoteMinOrderByAggregateInput = {
 }
 
 export type MarketQuoteSumOrderByAggregateInput = {
+  ingestId?: Prisma.SortOrder
   bidPrice?: Prisma.SortOrder
   askPrice?: Prisma.SortOrder
   bidQuantity?: Prisma.SortOrder
@@ -453,6 +481,7 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 
 export type MarketQuoteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  ingestId?: boolean
   receivedAt?: boolean
   exchangeEventTime?: boolean
   asset?: boolean
@@ -464,6 +493,7 @@ export type MarketQuoteSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 }, ExtArgs["result"]["marketQuote"]>
 
 export type MarketQuoteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  ingestId?: boolean
   receivedAt?: boolean
   exchangeEventTime?: boolean
   asset?: boolean
@@ -475,6 +505,7 @@ export type MarketQuoteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 }, ExtArgs["result"]["marketQuote"]>
 
 export type MarketQuoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  ingestId?: boolean
   receivedAt?: boolean
   exchangeEventTime?: boolean
   asset?: boolean
@@ -486,6 +517,7 @@ export type MarketQuoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 }, ExtArgs["result"]["marketQuote"]>
 
 export type MarketQuoteSelectScalar = {
+  ingestId?: boolean
   receivedAt?: boolean
   exchangeEventTime?: boolean
   asset?: boolean
@@ -496,12 +528,13 @@ export type MarketQuoteSelectScalar = {
   updateId?: boolean
 }
 
-export type MarketQuoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"receivedAt" | "exchangeEventTime" | "asset" | "bidPrice" | "askPrice" | "bidQuantity" | "askQuantity" | "updateId", ExtArgs["result"]["marketQuote"]>
+export type MarketQuoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ingestId" | "receivedAt" | "exchangeEventTime" | "asset" | "bidPrice" | "askPrice" | "bidQuantity" | "askQuantity" | "updateId", ExtArgs["result"]["marketQuote"]>
 
 export type $MarketQuotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MarketQuote"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    ingestId: bigint
     receivedAt: Date
     exchangeEventTime: Date | null
     asset: string
@@ -593,8 +626,8 @@ export interface MarketQuoteDelegate<ExtArgs extends runtime.Types.Extensions.In
    * // Get first 10 MarketQuotes
    * const marketQuotes = await prisma.marketQuote.findMany({ take: 10 })
    * 
-   * // Only select the `receivedAt`
-   * const marketQuoteWithReceivedAtOnly = await prisma.marketQuote.findMany({ select: { receivedAt: true } })
+   * // Only select the `ingestId`
+   * const marketQuoteWithIngestIdOnly = await prisma.marketQuote.findMany({ select: { ingestId: true } })
    * 
    */
   findMany<T extends MarketQuoteFindManyArgs>(args?: Prisma.SelectSubset<T, MarketQuoteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MarketQuotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -638,9 +671,9 @@ export interface MarketQuoteDelegate<ExtArgs extends runtime.Types.Extensions.In
    *   ]
    * })
    * 
-   * // Create many MarketQuotes and only return the `receivedAt`
-   * const marketQuoteWithReceivedAtOnly = await prisma.marketQuote.createManyAndReturn({
-   *   select: { receivedAt: true },
+   * // Create many MarketQuotes and only return the `ingestId`
+   * const marketQuoteWithIngestIdOnly = await prisma.marketQuote.createManyAndReturn({
+   *   select: { ingestId: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -729,9 +762,9 @@ export interface MarketQuoteDelegate<ExtArgs extends runtime.Types.Extensions.In
    *   ]
    * })
    * 
-   * // Update zero or more MarketQuotes and only return the `receivedAt`
-   * const marketQuoteWithReceivedAtOnly = await prisma.marketQuote.updateManyAndReturn({
-   *   select: { receivedAt: true },
+   * // Update zero or more MarketQuotes and only return the `ingestId`
+   * const marketQuoteWithIngestIdOnly = await prisma.marketQuote.updateManyAndReturn({
+   *   select: { ingestId: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -933,6 +966,7 @@ export interface Prisma__MarketQuoteClient<T, Null = never, ExtArgs extends runt
  * Fields of the MarketQuote model
  */
 export interface MarketQuoteFieldRefs {
+  readonly ingestId: Prisma.FieldRef<"MarketQuote", 'BigInt'>
   readonly receivedAt: Prisma.FieldRef<"MarketQuote", 'DateTime'>
   readonly exchangeEventTime: Prisma.FieldRef<"MarketQuote", 'DateTime'>
   readonly asset: Prisma.FieldRef<"MarketQuote", 'String'>

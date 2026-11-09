@@ -2,7 +2,6 @@ import { ASSETS } from "../config/assets.js";
 import type {
   Asset,
   ExchangeSymbol,
-  NormalizedTradeInput,
   NormalizedBookTickerInput,
 } from "../types/market.types.js";
 
@@ -11,7 +10,6 @@ const BASE_URL = "wss://stream.binance.com:9443/stream";
 const RECONNECT_INITIAL_MS = 1_000;
 const RECONNECT_MAX_MS = 30_000;
 
-type TradeHandler = (trade: NormalizedTradeInput) => void;
 type BookTickerHandler = (quote: NormalizedBookTickerInput) => void;
 
 interface CombinedStreamMessage {
@@ -19,14 +17,6 @@ interface CombinedStreamMessage {
   data: unknown;
 }
 
-interface BinanceTradePayload {
-  e: "trade";
-  s: string;
-  p: string;
-  q: string;
-  T: number;
-  t: number;
-}
 interface BinanceBookTickerPayload {
   s: string;
   b: string;
@@ -84,10 +74,6 @@ function normalizeBookTicker(
   };
 }
 
-const assetBySymbol = new Map<ExchangeSymbol, Asset>(
-  ASSETS.map(({ asset, exchangeSymbol }) => [exchangeSymbol, asset]),
-);
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -98,61 +84,8 @@ function isCombinedStreamMessage(
   return isRecord(value) && typeof value.stream === "string" && "data" in value;
 }
 
-function isTradePayload(value: unknown): value is BinanceTradePayload {
-  return (
-    isRecord(value) &&
-    value.e === "trade" &&
-    typeof value.s === "string" &&
-    typeof value.p === "string" &&
-    typeof value.q === "string" &&
-    typeof value.T === "number" &&
-    Number.isSafeInteger(value.T) &&
-    typeof value.t === "number" &&
-    Number.isSafeInteger(value.t)
-  );
-}
-
-function normalizeTrade(
-  payload: BinanceTradePayload,
-): NormalizedTradeInput | null {
-  const asset = assetBySymbol.get(payload.s as ExchangeSymbol);
-
-  if (!asset) {
-    console.warn(`Ignoring unsupported symbol: ${payload.s}`);
-    return null;
-  }
-
-  if (
-    !/^\d+(?:\.\d+)?$/.test(payload.p) ||
-    !/^\d+(?:\.\d+)?$/.test(payload.q) ||
-    !/[1-9]/.test(payload.p) ||
-    !/[1-9]/.test(payload.q)
-  ) {
-    console.warn("Ignoring invalid trade price or quantity");
-    return null;
-  }
-
-  const configuredAsset = ASSETS.find(
-    (item) => item.exchangeSymbol === payload.s,
-  );
-
-  if (!configuredAsset) {
-    return null;
-  }
-
-  return {
-    asset,
-    symbol: configuredAsset.exchangeSymbol,
-    price: payload.p,
-    quantity: payload.q,
-    eventTime: payload.T,
-    tradeId: payload.t,
-  };
-}
-
 function parseMessage(
   raw: string,
-  onTrade: TradeHandler | undefined,
   onBookTicker: BookTickerHandler,
   receivedAt: number,
 ): void {
@@ -175,18 +108,6 @@ function parseMessage(
     return;
   }
 
-  // First, check whether this is a trade event.
-  if (isTradePayload(parsed.data)) {
-    const trade = normalizeTrade(parsed.data);
-
-    if (trade && onTrade) {
-      onTrade(trade);
-    }
-
-    return;
-  }
-
-  // Otherwise, check whether this is a book ticker event.
   if (isBookTickerPayload(parsed.data)) {
     const quote = normalizeBookTicker(parsed.data, receivedAt);
 
@@ -197,7 +118,6 @@ function parseMessage(
     return;
   }
 
-  // If neither validator accepts it, ignore the message.
   console.warn("Ignoring invalid or unsupported payload");
 }
 
@@ -209,7 +129,6 @@ export function getBookTickerStreams(): string {
 
 export function connectToBinance(
   onBookticker: BookTickerHandler,
-  onTrade?: TradeHandler,
 ): () => void {
   const streams = getBookTickerStreams();
   const url = `${BASE_URL}?streams=${streams}`;
@@ -237,7 +156,7 @@ export function connectToBinance(
     currentSocket.addEventListener("message", (event) => {
       const receivedAt = Date.now();
       if (socket !== currentSocket || stopped) return;
-      parseMessage(String(event.data), onTrade, onBookticker, receivedAt);
+      parseMessage(String(event.data), onBookticker, receivedAt);
     });
 
     currentSocket.addEventListener("error", () => {

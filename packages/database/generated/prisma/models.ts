@@ -10,4 +10,6 @@
  */
 export type * from './models/User.js'
 export type * from './models/MarketQuote.js'
+export type * from './models/MarketCandle.js'
+export type * from './models/CandleAggregationCheckpoint.js'
 export type * from './commonInputTypes.js'

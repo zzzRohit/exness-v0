@@ -21,6 +21,11 @@ export interface QuoteWriterLogger {
 }
 
 type InsertBatch = (quotes: readonly LatestBookTicker[]) => Promise<void>;
+type ErrorWithPrismaDetails = Error & {
+  code?: unknown;
+  meta?: unknown;
+  clientVersion?: unknown;
+};
 
 const defaultOptions: QuoteWriterOptions = {
   batchSize: 200,
@@ -70,6 +75,96 @@ function retriesFromEnv(): number {
   }
 
   return parsed;
+}
+
+function sanitizeLogValue(value: unknown): unknown {
+  if (typeof value === "string") {
+    return value.replace(
+      /(postgres(?:ql)?:\/\/)[^/\s@]+@/gi,
+      "$1[REDACTED]@",
+    );
+  }
+  if (Array.isArray(value)) {
+    return value.map(sanitizeLogValue);
+  }
+  if (typeof value === "object" && value !== null) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nestedValue]) => [
+        key,
+        sanitizeLogValue(nestedValue),
+      ]),
+    );
+  }
+  return value;
+}
+
+function getErrorDetails(error: unknown): Record<string, unknown> {
+  if (!(error instanceof Error)) {
+    return {
+      errorClass: typeof error,
+      errorCode: undefined,
+      errorMessage: sanitizeLogValue(String(error)),
+      errorMeta: undefined,
+      clientVersion: undefined,
+      stack: undefined,
+    };
+  }
+
+  const prismaError = error as ErrorWithPrismaDetails;
+  return {
+    errorClass: error.name || error.constructor.name,
+    errorCode: prismaError.code,
+    errorMessage: sanitizeLogValue(error.message),
+    errorMeta: sanitizeLogValue(prismaError.meta),
+    clientVersion: prismaError.clientVersion,
+    stack: sanitizeLogValue(error.stack),
+  };
+}
+
+function isRetryableInsertError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return true;
+  }
+
+  const prismaError = error as ErrorWithPrismaDetails;
+  const prismaCode =
+    typeof prismaError.code === "string" ? prismaError.code : undefined;
+
+  if (
+    prismaCode &&
+    ["P1001", "P1002", "P1008", "P1017", "P2024", "P2034"].includes(
+      prismaCode,
+    )
+  ) {
+    return true;
+  }
+
+  if (prismaCode?.startsWith("P")) {
+    const metadata = prismaError.meta;
+    const driverError =
+      typeof metadata === "object" && metadata !== null && "driverAdapterError" in metadata
+        ? metadata.driverAdapterError
+        : undefined;
+    const cause =
+      typeof driverError === "object" &&
+      driverError !== null &&
+      "cause" in driverError
+        ? driverError.cause
+        : undefined;
+    const sqlState =
+      typeof cause === "object" && cause !== null && "code" in cause
+        ? cause.code
+        : undefined;
+    return (
+      typeof sqlState === "string" &&
+      (sqlState.startsWith("08") ||
+        sqlState.startsWith("40") ||
+        sqlState.startsWith("53") ||
+        ["55P03", "57014", "57P01", "57P02", "57P03"].includes(sqlState))
+    );
+  }
+
+  return true;
 }
 
 export const quoteWriterOptions: QuoteWriterOptions = {
@@ -236,7 +331,22 @@ export class QuoteWriterService {
         await this.insertBatch(batch);
         return true;
       } catch (error) {
-        if (attempt === this.options.maxRetries) {
+        const retryable = isRetryableInsertError(error);
+        const details = {
+          ...getErrorDetails(error),
+          batchSize: batch.length,
+          retry: attempt + 1,
+          maxRetries: this.options.maxRetries,
+          retryable,
+        };
+
+        if (!retryable || attempt === this.options.maxRetries) {
+          this.logger.error(
+            retryable
+              ? "Quote batch insert exhausted retries; batch remains queued."
+              : "Quote batch insert failed with a non-retryable error; batch remains queued.",
+            details,
+          );
           return false;
         }
 
@@ -246,11 +356,8 @@ export class QuoteWriterService {
         );
         this.retryCount += 1;
         this.logger.warn("Quote batch insert failed; retrying.", {
-          batchSize: batch.length,
-          retry: attempt + 1,
-          maxRetries: this.options.maxRetries,
+          ...details,
           delayMs,
-          errorType: error instanceof Error ? error.name : "UnknownError",
         });
         await this.scheduler.delay(delayMs);
       }

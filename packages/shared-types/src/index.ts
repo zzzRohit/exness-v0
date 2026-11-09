@@ -1,5 +1,7 @@
 export type OrderSide = "buy" | "sell";
 
+export type Asset = "BTC" | "ETH" | "SOL";
+
 export interface Quote {
   type: "quote";
   asset: string;
@@ -11,7 +13,7 @@ export interface Quote {
 export interface OpenOrderInput {
   type: OrderSide;
   qty: string | number;
-  asset: string;
+  asset: Asset;
   stopLoss?: string | number;
   takeProfit?: string | number;
 }

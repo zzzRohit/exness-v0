@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { buildMarketQuoteInsertStatement } from "./market.quote.writer.js";
+import {
+  buildMarketQuoteInsertStatement,
+  insertSerializedMarketQuoteBatch,
+} from "./market.quote.writer.js";
 import type { LatestBookTicker } from "../types/market.types.js";
 
 function quote(updateId: number): LatestBookTicker {
@@ -40,5 +43,28 @@ describe("buildMarketQuoteInsertStatement", () => {
 
   test("returns no statement for an empty batch", () => {
     expect(buildMarketQuoteInsertStatement([])).toBeNull();
+  });
+});
+
+describe("insertSerializedMarketQuoteBatch", () => {
+  test("acquires the transaction lock before inserting the quote batch", async () => {
+    const statement = buildMarketQuoteInsertStatement([quote(1)]);
+    if (!statement) {
+      throw new Error("Expected an insert statement.");
+    }
+
+    const calls: string[] = [];
+    await insertSerializedMarketQuoteBatch(
+      statement,
+      async () => {
+        calls.push("lock");
+      },
+      async (receivedStatement) => {
+        calls.push("insert");
+        expect(receivedStatement).toBe(statement);
+      },
+    );
+
+    expect(calls).toEqual(["lock", "insert"]);
   });
 });

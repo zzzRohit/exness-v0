@@ -38,11 +38,29 @@ export function buildMarketQuoteInsertStatement(
   `;
 }
 
+export async function insertSerializedMarketQuoteBatch(
+  statement: Prisma.Sql,
+  acquireIngestIdLock: () => Promise<unknown>,
+  executeInsert: (statement: Prisma.Sql) => Promise<unknown>,
+): Promise<void> {
+  await acquireIngestIdLock();
+  await executeInsert(statement);
+}
+
 export async function insertMarketQuotes(
   quotes: readonly LatestBookTicker[],
 ): Promise<void> {
   const statement = buildMarketQuoteInsertStatement(quotes);
   if (statement) {
-    await prisma.$executeRaw(statement);
+    await prisma.$transaction(async (transaction) => {
+      await insertSerializedMarketQuoteBatch(
+        statement,
+        () =>
+          transaction.$queryRaw`
+            SELECT pg_advisory_xact_lock(74291, 1)::text AS acquired
+          `,
+        (insertStatement) => transaction.$executeRaw(insertStatement),
+      );
+    });
   }
 }

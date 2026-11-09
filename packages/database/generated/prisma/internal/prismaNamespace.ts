@@ -398,7 +398,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  MarketQuote: 'MarketQuote'
+  MarketQuote: 'MarketQuote',
+  MarketCandle: 'MarketCandle',
+  CandleAggregationCheckpoint: 'CandleAggregationCheckpoint'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "marketQuote"
+    modelProps: "user" | "marketQuote" | "marketCandle" | "candleAggregationCheckpoint"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -566,6 +568,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MarketCandle: {
+      payload: Prisma.$MarketCandlePayload<ExtArgs>
+      fields: Prisma.MarketCandleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MarketCandleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MarketCandleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>
+        }
+        findFirst: {
+          args: Prisma.MarketCandleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MarketCandleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>
+        }
+        findMany: {
+          args: Prisma.MarketCandleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>[]
+        }
+        create: {
+          args: Prisma.MarketCandleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>
+        }
+        createMany: {
+          args: Prisma.MarketCandleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MarketCandleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>[]
+        }
+        delete: {
+          args: Prisma.MarketCandleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>
+        }
+        update: {
+          args: Prisma.MarketCandleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>
+        }
+        deleteMany: {
+          args: Prisma.MarketCandleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MarketCandleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MarketCandleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>[]
+        }
+        upsert: {
+          args: Prisma.MarketCandleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarketCandlePayload>
+        }
+        aggregate: {
+          args: Prisma.MarketCandleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMarketCandle>
+        }
+        groupBy: {
+          args: Prisma.MarketCandleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketCandleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MarketCandleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarketCandleCountAggregateOutputType> | number
+        }
+      }
+    }
+    CandleAggregationCheckpoint: {
+      payload: Prisma.$CandleAggregationCheckpointPayload<ExtArgs>
+      fields: Prisma.CandleAggregationCheckpointFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CandleAggregationCheckpointFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CandleAggregationCheckpointFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>
+        }
+        findFirst: {
+          args: Prisma.CandleAggregationCheckpointFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CandleAggregationCheckpointFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>
+        }
+        findMany: {
+          args: Prisma.CandleAggregationCheckpointFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>[]
+        }
+        create: {
+          args: Prisma.CandleAggregationCheckpointCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>
+        }
+        createMany: {
+          args: Prisma.CandleAggregationCheckpointCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CandleAggregationCheckpointCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>[]
+        }
+        delete: {
+          args: Prisma.CandleAggregationCheckpointDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>
+        }
+        update: {
+          args: Prisma.CandleAggregationCheckpointUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>
+        }
+        deleteMany: {
+          args: Prisma.CandleAggregationCheckpointDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CandleAggregationCheckpointUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CandleAggregationCheckpointUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>[]
+        }
+        upsert: {
+          args: Prisma.CandleAggregationCheckpointUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CandleAggregationCheckpointPayload>
+        }
+        aggregate: {
+          args: Prisma.CandleAggregationCheckpointAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCandleAggregationCheckpoint>
+        }
+        groupBy: {
+          args: Prisma.CandleAggregationCheckpointGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CandleAggregationCheckpointGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CandleAggregationCheckpointCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CandleAggregationCheckpointCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -607,6 +757,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   email: 'email',
   password: 'password',
   balance: 'balance',
@@ -618,6 +769,7 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 
 export const MarketQuoteScalarFieldEnum = {
+  ingestId: 'ingestId',
   receivedAt: 'receivedAt',
   exchangeEventTime: 'exchangeEventTime',
   asset: 'asset',
@@ -629,6 +781,39 @@ export const MarketQuoteScalarFieldEnum = {
 } as const
 
 export type MarketQuoteScalarFieldEnum = (typeof MarketQuoteScalarFieldEnum)[keyof typeof MarketQuoteScalarFieldEnum]
+
+
+export const MarketCandleScalarFieldEnum = {
+  asset: 'asset',
+  interval: 'interval',
+  startTime: 'startTime',
+  bidOpen: 'bidOpen',
+  bidHigh: 'bidHigh',
+  bidLow: 'bidLow',
+  bidClose: 'bidClose',
+  askOpen: 'askOpen',
+  askHigh: 'askHigh',
+  askLow: 'askLow',
+  askClose: 'askClose',
+  quoteCount: 'quoteCount',
+  firstReceivedAt: 'firstReceivedAt',
+  firstUpdateId: 'firstUpdateId',
+  lastReceivedAt: 'lastReceivedAt',
+  lastUpdateId: 'lastUpdateId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MarketCandleScalarFieldEnum = (typeof MarketCandleScalarFieldEnum)[keyof typeof MarketCandleScalarFieldEnum]
+
+
+export const CandleAggregationCheckpointScalarFieldEnum = {
+  consumerName: 'consumerName',
+  lastIngestId: 'lastIngestId',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CandleAggregationCheckpointScalarFieldEnum = (typeof CandleAggregationCheckpointScalarFieldEnum)[keyof typeof CandleAggregationCheckpointScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -883,6 +1068,8 @@ export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaC
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   marketQuote?: Prisma.MarketQuoteOmit
+  marketCandle?: Prisma.MarketCandleOmit
+  candleAggregationCheckpoint?: Prisma.CandleAggregationCheckpointOmit
 }
 
 /* Types for Logging */

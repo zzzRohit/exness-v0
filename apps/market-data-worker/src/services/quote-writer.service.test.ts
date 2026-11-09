@@ -140,6 +140,91 @@ describe("QuoteWriterService", () => {
     expect(fake.delays).toEqual([10]);
   });
 
+  test("does not retry non-retryable Prisma errors and logs safe diagnostics", async () => {
+    const queue = new MarketQuoteQueue();
+    const first = quote(1);
+    queue.enqueue(first);
+    let attempts = 0;
+    const loggedDetails: Record<string, unknown>[] = [];
+    const logger: QuoteWriterLogger = {
+      info() {},
+      warn() {},
+      error(_message, details) {
+        loggedDetails.push(details);
+      },
+    };
+    const writer = new QuoteWriterService(
+      async () => {
+        attempts += 1;
+        const error = new Error(
+          "Invalid query: postgresql://user:password@localhost/db",
+        ) as Error & {
+          code: string;
+          meta: unknown;
+          clientVersion: string;
+        };
+        error.name = "PrismaClientKnownRequestError";
+        error.code = "P2010";
+        error.meta = {
+          driverAdapterError: {
+            cause: { kind: "UnsupportedNativeDataType", type: "void" },
+          },
+        };
+        error.clientVersion = "7.10.1";
+        throw error;
+      },
+      queue,
+      options,
+      fakeScheduler().scheduler,
+      logger,
+    );
+
+    expect(await writer.flush(true)).toBe(false);
+    expect(attempts).toBe(1);
+    expect(queue.peekBatch(1)).toEqual([first]);
+    expect(loggedDetails[0]).toMatchObject({
+      errorClass: "PrismaClientKnownRequestError",
+      errorCode: "P2010",
+      errorMeta: {
+        driverAdapterError: {
+          cause: { kind: "UnsupportedNativeDataType", type: "void" },
+        },
+      },
+      clientVersion: "7.10.1",
+      retryable: false,
+    });
+    expect(loggedDetails[0]?.errorMessage).toContain(
+      "postgresql://[REDACTED]@localhost/db",
+    );
+    expect(loggedDetails[0]?.stack).toBeString();
+  });
+
+  test("retries known transient Prisma transaction conflicts", async () => {
+    const queue = new MarketQuoteQueue();
+    const fake = fakeScheduler();
+    queue.enqueue(quote(1));
+    let attempts = 0;
+    const writer = new QuoteWriterService(
+      async () => {
+        attempts += 1;
+        if (attempts === 1) {
+          throw Object.assign(new Error("transaction conflict"), {
+            code: "P2034",
+          });
+        }
+      },
+      queue,
+      options,
+      fake.scheduler,
+      silentLogger,
+    );
+
+    expect(await writer.flush(true)).toBe(true);
+    expect(attempts).toBe(2);
+    expect(fake.delays).toEqual([10]);
+    expect(queue.isEmpty()).toBe(true);
+  });
+
   test("prevents overlapping batch inserts", async () => {
     const queue = new MarketQuoteQueue();
     const inserted = deferred();

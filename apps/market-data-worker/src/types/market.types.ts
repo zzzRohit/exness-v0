@@ -2,48 +2,39 @@ export type Asset = "BTC" | "ETH" | "SOL";
 
 export type ExchangeSymbol = "BTCUSDT" | "ETHUSDT" | "SOLUSDT";
 
-export interface BinanceTradeMessage {
-  e: "trade";
-  E: number;
-  s: string;
-  t: number;
-  p: string;
-  q: string;
-  T: number;
-  m: boolean;
-}
-
-export interface NormalizedTradeInput {
-  asset: Asset;
-  symbol: ExchangeSymbol;
-  price: string;
-  quantity: string;
-  eventTime: number;
-  tradeId: number;
-}
-
-export interface LatestMarketPrice {
-  asset: Asset;
-  price: bigint;
-  eventTime: number;
-}
-
 export interface PlatformQuote {
   buyPrice: bigint;
   sellPrice: bigint;
 }
 
-export type CandleInterval = "1m" | "1d" | "1w";
+export type CandleInterval = "1m" | "5m" | "30m" | "1d" | "1w";
 
-export interface Candle {
+export interface BidAskCandle {
   asset: Asset;
   interval: CandleInterval;
   startTime: number;
-  open: bigint;
-  high: bigint;
-  low: bigint;
-  close: bigint;
-  tradeCount: number;
+  bidOpen: bigint;
+  bidHigh: bigint;
+  bidLow: bigint;
+  bidClose: bigint;
+  askOpen: bigint;
+  askHigh: bigint;
+  askLow: bigint;
+  askClose: bigint;
+  quoteCount: bigint;
+  firstReceivedAt: number;
+  firstUpdateId: number;
+  lastReceivedAt: number;
+  lastUpdateId: number;
+}
+
+export interface PersistedMarketQuote {
+  ingestId: bigint;
+  asset: Asset;
+  receivedAt: number;
+  updateId: number;
+  bidPrice: bigint;
+  askPrice: bigint;
 }
 
 export interface NormalizedBookTickerInput {
@@ -72,3 +63,10 @@ export interface LatestBookTicker {
 
 // and think about Quantity how we should store them ???
 //  then updateID is used to track which order is newer and all
+export interface PlatformPrice {
+  asset : Asset,
+  bidPrice : bigint,
+  askPrice : bigint,
+  decimal : 6,
+  receivedAt : number
+}

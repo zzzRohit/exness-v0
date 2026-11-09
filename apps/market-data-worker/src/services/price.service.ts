@@ -1,8 +1,6 @@
 import type {
   Asset,
-  LatestMarketPrice,
   LatestBookTicker,
-  NormalizedTradeInput,
   NormalizedBookTickerInput,
 } from "../types/market.types.js";
 import {
@@ -10,34 +8,7 @@ import {
   PRICE_DECIMAL_PLACES,
   QUANTITY_DECIMAL_PLACES,
 } from "../utils/decimal.js";
-const internalState_trade = new Map<Asset, LatestMarketPrice>();
 const internalState_BookTicker = new Map<Asset, LatestBookTicker>();
-
-export const updateLatestTradePrice = (trade: NormalizedTradeInput): void => {
-  // 1. Retrieve the existing price
-  const existingPrice = internalState_trade.get(trade.asset);
-
-  // 2. Skip older events
-  if (existingPrice && trade.eventTime < existingPrice.eventTime) {
-    return;
-  }
-  const price = decimalToScaledBigInt(trade.price);
-
-  const latestPrice: LatestMarketPrice = {
-    asset: trade.asset,
-    price,
-    eventTime: trade.eventTime,
-  };
-  internalState_trade.set(trade.asset, latestPrice);
-};
-
-export const getLatestTradePrice = (asset: Asset) => {
-  const Latestprice = internalState_trade.get(asset);
-  if (!Latestprice) {
-    return null;
-  }
-  return Latestprice;
-};
 
 export const updateLatestBookTicker = (
   quote: NormalizedBookTickerInput,

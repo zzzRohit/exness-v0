@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,6 +9,7 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
+  name      String?
   email     String   @unique
   password  String
   balance   BigInt   @default(500000)
@@ -18,16 +18,51 @@ model User {
 }
 
 model MarketQuote {
-  receivedAt       DateTime  @map("received_at") @db.Timestamptz(6)
+  ingestId          BigInt    @default(dbgenerated("nextval('public.market_quotes_ingest_id_seq'::regclass)")) @map("ingest_id")
+  receivedAt        DateTime  @map("received_at") @db.Timestamptz(6)
   exchangeEventTime DateTime? @map("exchange_event_time") @db.Timestamptz(6)
-  asset            String
-  bidPrice         BigInt    @map("bid_price")
-  askPrice         BigInt    @map("ask_price")
-  bidQuantity      BigInt    @map("bid_quantity")
-  askQuantity      BigInt    @map("ask_quantity")
-  updateId         BigInt    @map("update_id")
+  asset             String
+  bidPrice          BigInt    @map("bid_price")
+  askPrice          BigInt    @map("ask_price")
+  bidQuantity       BigInt    @map("bid_quantity")
+  askQuantity       BigInt    @map("ask_quantity")
+  updateId          BigInt    @map("update_id")
 
   @@id([asset, receivedAt, updateId])
   @@index([asset, receivedAt(sort: Desc)], map: "idx_market_quotes_asset_received")
+  @@index([ingestId], map: "idx_market_quotes_ingest_id")
   @@map("market_quotes")
+}
+
+model MarketCandle {
+  asset           String
+  interval        String
+  startTime       DateTime @map("start_time") @db.Timestamptz(6)
+  bidOpen         BigInt   @map("bid_open")
+  bidHigh         BigInt   @map("bid_high")
+  bidLow          BigInt   @map("bid_low")
+  bidClose        BigInt   @map("bid_close")
+  askOpen         BigInt   @map("ask_open")
+  askHigh         BigInt   @map("ask_high")
+  askLow          BigInt   @map("ask_low")
+  askClose        BigInt   @map("ask_close")
+  quoteCount      BigInt   @map("quote_count")
+  firstReceivedAt DateTime @map("first_received_at") @db.Timestamptz(6)
+  firstUpdateId   BigInt   @map("first_update_id")
+  lastReceivedAt  DateTime @map("last_received_at") @db.Timestamptz(6)
+  lastUpdateId    BigInt   @map("last_update_id")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@id([asset, interval, startTime])
+  @@index([interval, startTime(sort: Desc)], map: "idx_market_candles_interval_start")
+  @@map("market_candles")
+}
+
+model CandleAggregationCheckpoint {
+  consumerName String   @id @map("consumer_name")
+  lastIngestId BigInt   @default(0) @map("last_ingest_id")
+  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("candle_aggregation_checkpoint")
 }
