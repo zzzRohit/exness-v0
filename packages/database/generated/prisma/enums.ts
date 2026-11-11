@@ -9,7 +9,101 @@
 * 🟢 You can import this file directly.
 */
 
+export const AccountType = {
+  DEMO: 'DEMO'
+} as const
+
+export type AccountType = (typeof AccountType)[keyof typeof AccountType]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const OrderSide = {
+  BUY: 'BUY',
+  SELL: 'SELL'
+} as const
+
+export type OrderSide = (typeof OrderSide)[keyof typeof OrderSide]
+
+
+export const OrderPurpose = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE'
+} as const
+
+export type OrderPurpose = (typeof OrderPurpose)[keyof typeof OrderPurpose]
+
+
+export const OrderStatus = {
+  PENDING: 'PENDING',
+  EXECUTED: 'EXECUTED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
+export const PositionDirection = {
+  LONG: 'LONG',
+  SHORT: 'SHORT'
+} as const
+
+export type PositionDirection = (typeof PositionDirection)[keyof typeof PositionDirection]
+
+
+export const PositionStatus = {
+  OPEN: 'OPEN',
+  CLOSE_PENDING: 'CLOSE_PENDING',
+  CLOSED: 'CLOSED'
+} as const
+
+export type PositionStatus = (typeof PositionStatus)[keyof typeof PositionStatus]
+
+
+export const LedgerBucket = {
+  AVAILABLE: 'AVAILABLE',
+  LOCKED: 'LOCKED'
+} as const
+
+export type LedgerBucket = (typeof LedgerBucket)[keyof typeof LedgerBucket]
+
+
+export const LedgerEntryType = {
+  INITIAL_FUNDING: 'INITIAL_FUNDING',
+  RESERVE: 'RESERVE',
+  RELEASE: 'RELEASE',
+  REALIZED_PNL: 'REALIZED_PNL'
+} as const
+
+export type LedgerEntryType = (typeof LedgerEntryType)[keyof typeof LedgerEntryType]
+
+
+export const CommandType = {
+  OPEN_POSITION: 'OPEN_POSITION',
+  CLOSE_POSITION: 'CLOSE_POSITION'
+} as const
+
+export type CommandType = (typeof CommandType)[keyof typeof CommandType]
+
+
+export const CommandOutcome = {
+  EXECUTED: 'EXECUTED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type CommandOutcome = (typeof CommandOutcome)[keyof typeof CommandOutcome]
+
+
+export const OutboxDestination = {
+  ORDER_COMMANDS: 'ORDER_COMMANDS',
+  TRADE_EVENTS: 'TRADE_EVENTS'
+} as const
+
+export type OutboxDestination = (typeof OutboxDestination)[keyof typeof OutboxDestination]
+
+
+export const OutboxStatus = {
+  PENDING: 'PENDING',
+  PUBLISHED: 'PUBLISHED',
+  DEAD_LETTER: 'DEAD_LETTER'
+} as const
+
+export type OutboxStatus = (typeof OutboxStatus)[keyof typeof OutboxStatus]

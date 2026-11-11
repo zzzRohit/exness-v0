@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { prisma } from "@exness/database";
 import { comparePassword, hashPassword } from "../utils/password.js";
 import type {
@@ -57,17 +58,45 @@ export async function signup(
   const passwordHash = await hashPassword(input.password);
 
   try {
-    const user = await prisma.user.create({
-      data: {
-        name: input.name,
-        email: input.email,
-        password: passwordHash,
-      },
-      select: {
-        id: true,
-        email: true,
-        balance: true,
-      },
+    const user = await prisma.$transaction(async (tx) => {
+      // Step 1: Create user
+      const user = await tx.user.create({
+        data: {
+          name: input.name,
+          email: input.email,
+          password: passwordHash,
+        },
+        select: {
+          id: true,
+          email: true,
+          balance: true,
+        },
+      });
+
+      // Step 2: Create DEMO account
+      const account = await tx.account.create({
+        data: {
+          userId: user.id,
+          accountType: "DEMO",
+          currency: "USD",
+          availableBalance: 500000n,
+          lockedBalance: 0n,
+        },
+      });
+
+      // Step 3: Create initial funding ledger entry
+      await tx.ledgerEntry.create({
+        data: {
+          accountId: account.id,
+          entryType: "INITIAL_FUNDING",
+          bucket: "AVAILABLE",
+          amount: 500000n,
+          operationId: randomUUID(),
+          referenceId: account.id,
+          description: "Initial DEMO account funding",
+        },
+      });
+      return user;
     });
 
     return toAuthenticatedUser(user);

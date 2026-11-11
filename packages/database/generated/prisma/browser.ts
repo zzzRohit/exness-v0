@@ -37,3 +37,33 @@ export type MarketCandle = Prisma.MarketCandleModel
  * 
  */
 export type CandleAggregationCheckpoint = Prisma.CandleAggregationCheckpointModel
+/**
+ * Model Account
+ * 
+ */
+export type Account = Prisma.AccountModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model Position
+ * 
+ */
+export type Position = Prisma.PositionModel
+/**
+ * Model LedgerEntry
+ * 
+ */
+export type LedgerEntry = Prisma.LedgerEntryModel
+/**
+ * Model ProcessedCommand
+ * 
+ */
+export type ProcessedCommand = Prisma.ProcessedCommandModel
+/**
+ * Model OutboxEvent
+ * 
+ */
+export type OutboxEvent = Prisma.OutboxEventModel

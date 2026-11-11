@@ -8,13 +8,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String?
-  email     String   @unique
-  password  String
-  balance   BigInt   @default(500000)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id       String  @id @default(uuid())
+  name     String?
+  email    String  @unique
+  password String
+
+  balance   BigInt    @default(500000)
+  accounts  Account[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model MarketQuote {
@@ -65,4 +67,245 @@ model CandleAggregationCheckpoint {
   updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
   @@map("candle_aggregation_checkpoint")
+}
+
+// financial asset
+enum AccountType {
+  DEMO
+}
+
+model Account {
+  id          String      @id @default(uuid())
+  userId      String
+  accountType AccountType @default(DEMO)
+  currency    String      @default("USD")
+
+  availableBalance BigInt @default(0)
+  lockedBalance    BigInt @default(0)
+
+  user User @relation(fields: [userId], references: [id])
+
+  orders        Order[]
+  positions     Position[]
+  ledgerEntries LedgerEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, accountType, currency])
+}
+
+model Order {
+  id        String @id @default(uuid())
+  accountId String
+
+  asset   String
+  side    OrderSide
+  purpose OrderPurpose
+
+  quantity BigInt
+
+  status OrderStatus @default(PENDING)
+
+  // Used for CLOSE orders
+  positionId String?
+
+  // Used to identify successful execution
+  executionPrice BigInt?
+
+  // Client retry protection
+  idempotencyKey String?
+
+  rejectionReason String?
+
+  requestedAt DateTime  @default(now())
+  executedAt  DateTime?
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  targetPosition Position? @relation("CloseOrders", fields: [accountId, positionId], references: [accountId, id])
+
+  openedPosition Position? @relation("OpeningOrder")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([accountId, idempotencyKey])
+  @@unique([accountId, id])
+  @@index([accountId, status, createdAt])
+  @@index([status, createdAt])
+}
+
+model Position {
+  id        String @id @default(uuid())
+  accountId String
+
+  // Asset and trade direction
+  asset     String
+  direction PositionDirection
+  quantity  BigInt
+
+  // Execution details
+  entryPrice BigInt
+  exitPrice  BigInt?
+
+  // Financial details
+  reservedAmount BigInt
+  realizedPnl    BigInt?
+
+  // Lifecycle
+  status PositionStatus @default(OPEN)
+
+  // Opening order reference
+  openOrderId String @unique
+
+  // Relations
+  account Account @relation(fields: [accountId], references: [id])
+
+  openingOrder Order @relation("OpeningOrder", fields: [accountId, openOrderId], references: [accountId, id])
+
+  closeOrders Order[] @relation("CloseOrders")
+
+  openedAt DateTime  @default(now())
+  closedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([accountId, id])
+  @@unique([accountId, openOrderId])
+  @@index([accountId, status, openedAt])
+  @@index([asset, status])
+}
+
+model LedgerEntry {
+  id        String @id @default(uuid())
+  accountId String
+
+  // Groups entries belonging to one financial operation
+  operationId String @db.Uuid
+
+  entryType LedgerEntryType
+  bucket    LedgerBucket
+
+  // Signed amount in cents
+  amount BigInt
+
+  referenceId String?
+  description String?
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([accountId, createdAt])
+  @@index([operationId])
+  @@index([referenceId])
+}
+
+model ProcessedCommand {
+  // Unique ID received from Redis Streams
+  commandId String @id
+
+  commandType CommandType
+  outcome     CommandOutcome
+
+  // Position or order associated with the command
+  aggregateId String?
+
+  // Optional execution/rejection result
+  result Json?
+
+  processedAt DateTime @default(now())
+
+  @@index([commandType, processedAt])
+}
+
+model OutboxEvent {
+  id String @id @default(uuid())
+
+  eventType   String
+  destination OutboxDestination
+
+  // Related order or position ID
+  aggregateId String
+
+  // Message to publish
+  payload Json
+
+  status OutboxStatus @default(PENDING)
+
+  // Retry management
+  attempts    Int      @default(0)
+  availableAt DateTime @default(now())
+
+  lastError   String?
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, availableAt, createdAt])
+  @@index([destination, status, availableAt])
+  @@index([aggregateId])
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderPurpose {
+  OPEN
+  CLOSE
+}
+
+enum OrderStatus {
+  PENDING
+  EXECUTED
+  REJECTED
+}
+
+enum PositionDirection {
+  LONG
+  SHORT
+}
+
+enum PositionStatus {
+  OPEN
+  CLOSE_PENDING
+  CLOSED
+}
+
+enum LedgerBucket {
+  AVAILABLE
+  LOCKED
+}
+
+enum LedgerEntryType {
+  INITIAL_FUNDING
+  RESERVE
+  RELEASE
+  REALIZED_PNL
+}
+
+enum CommandType {
+  OPEN_POSITION
+  CLOSE_POSITION
+}
+
+enum CommandOutcome {
+  EXECUTED
+  REJECTED
+}
+
+enum OutboxDestination {
+  ORDER_COMMANDS
+  TRADE_EVENTS
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  DEAD_LETTER
 }
